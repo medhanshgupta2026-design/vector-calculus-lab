@@ -1,103 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vector Calculus Engine & Presentation Matrix</title>
-    <!-- Premium Fonts & Modern UI Vector Icons -->
-    <link href="https://googleapis.com" rel="stylesheet">
-    <script src="https://unpkg.com"></script>
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#020617" />
+    <meta
+      name="description"
+      content="VectorCalc Lab Console — interactive vector calculus manual, real-time field simulation arena and live execution window for GNU Octave / MATLAB concept labs."
+    />
+    <title>VectorCalc · Lab Console — Vector Calculus</title>
     <style>
-        :root {
-            --bg-base: #090d16;
-            --bg-card: #0f172a;
-            --bg-nested: #020617;
-            --border-glow: #1e293b;
-            --accent-emerald: #10b981;
-            --accent-cyan: #06b6d4;
-            --accent-violet: #8b5cf6;
-            --text-primary: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-danger: #f43f5e;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-base); color: var(--text-primary); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        /* Navigation Header Bar */
-        header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-glow); padding: 0 30px; height: 65px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
-        .logo-section { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: 0.5px; }
-        .logo-section span { color: var(--accent-cyan); }
-        .tabs { display: flex; gap: 8px; }
-        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 18px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
-        .tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-        .tab-btn.active { color: var(--text-primary); background: var(--accent-violet); box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); }
-        .drawer-trigger { background: transparent; border: 1px solid var(--border-glow); color: var(--accent-emerald); padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s ease; }
-        .drawer-trigger:hover { background: rgba(16, 185, 129, 0.1); border-color: var(--accent-emerald); }
-
-        /* Window Views Framework */
-        .main-wrapper { flex: 1; display: flex; position: relative; overflow: hidden; }
-        .view-pane { flex: 1; height: 100%; display: none; padding: 25px; overflow-y: auto; }
-        .view-pane.active { display: grid; }
-
-        /* View 1: Lab Theory Layout */
-        .manual-grid { grid-template-columns: 1fr 1fr; gap: 25px; max-width: 1600px; margin: 0 auto; width: 100%; }
-        .glass-card { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(16px); border: 1px solid var(--border-glow); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 15px; }
-        .card-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-glow); padding-bottom: 12px; }
-        .formula-box { background: var(--bg-nested); padding: 14px; border-radius: 8px; border-left: 3px solid var(--accent-cyan); font-family: 'Fira Code', monospace; color: var(--accent-cyan); font-size: 14px; margin: 5px 0; }
-        p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
-        .code-container { font-family: 'Fira Code', monospace; background: var(--bg-nested); padding: 18px; border-radius: 8px; color: #34d399; font-size: 13px; overflow-x: auto; white-space: pre; border: 1px solid #1e293b; line-height: 1.5; }
-        .line-explanation { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
-        .exp-item { display: flex; gap: 12px; font-size: 13px; border-bottom: 1px dashed var(--border-glow); padding-bottom: 10px; }
-        .exp-item strong { color: var(--text-primary); font-family: 'Fira Code', monospace; min-width: 130px; }
-
-        /* View 2: Simulation Dashboard Arena */
-        .arena-grid { grid-template-columns: 320px 1fr; gap: 25px; height: 100%; max-width: 1600px; margin: 0 auto; width: 100%; }
-        .sidebar-controls { display: flex; flex-direction: column; gap: 20px; }
-        .control-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .slider-wrap { display: flex; align-items: center; gap: 10px; }
-        input[type="range"] { flex: 1; accent-color: var(--accent-violet); background: #1e293b; height: 6px; border-radius: 4px; outline: none; }
-        .slider-val { font-family: 'Fira Code', monospace; font-size: 13px; min-width: 35px; color: var(--accent-cyan); text-align: right; }
-        
-        .btn-toggle-row { display: flex; gap: 8px; }
-        .toggle-btn { flex: 1; background: #1e293b; border: 1px solid var(--border-glow); color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s ease; }
-        .toggle-btn.active { background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); }
-        .preset-btn { width: 100%; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
-        .preset-btn:hover { background: var(--accent-violet); color: var(--text-primary); }
-
-        .challenge-box { background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
-        .challenge-box strong { color: var(--accent-danger); font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .system-status { background: var(--bg-nested); padding: 14px; border-radius: 8px; text-align: center; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border: 1px solid var(--border-glow); }
-        .status-stable { color: var(--accent-emerald); }
-        .status-warning { color: var(--accent-danger); animation: pulseAlert 1s infinite alternate; }
-        @keyframes pulseAlert { from { opacity: 0.4; } to { opacity: 1; } }
-
-        /* Vector Tracking Engine Workspace */
-        .canvas-area { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 500px; }
-        .metrics-row { display: flex; gap: 15px; }
-        .metric-card { flex: 1; background: var(--bg-nested); border: 1px solid var(--border-glow); border-radius: 8px; padding: 12px 20px; display: flex; flex-direction: column; gap: 4px; }
-        .metric-num { font-family: 'Fira Code', monospace; font-size: 22px; font-weight: 700; color: var(--text-primary); }
-        #canvasContainer { flex: 1; background: #020617; border-radius: 12px; border: 2px solid var(--border-glow); position: relative; overflow: hidden; }
-        canvas { display: block; width: 100%; height: 100%; position: absolute; top:0; left:0; cursor: pointer; }
-
-        /* Computational Jupyter/Octave Console Module */
-        .notebook-card { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-glow); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 25px; grid-column: span 2; }
-        .terminal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glow); padding-bottom: 10px; }
-        .terminal-actions { display: flex; gap: 10px; }
-        .run-btn { background: var(--accent-emerald); color: var(--bg-nested); border: none; padding: 6px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
-        .input-row { display: flex; gap: 10px; align-items: center; background: var(--bg-nested); border: 1px solid var(--border-glow); padding: 10px; border-radius: 6px; }
-        .prompt-symbol { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--accent-cyan); font-size: 15px; }
-        .console-input { background: transparent; border: none; outline: none; color: var(--text-primary); font-family: 'Fira Code', monospace; font-size: 14px; flex: 1; }
-        .terminal-output { background: #020617; border: 1px solid var(--border-glow); padding: 15px; border-radius: 6px; min-height: 80px; font-family: 'Fira Code', monospace; font-size: 13px; color: var(--accent-emerald); overflow-y: auto; white-space: pre-wrap; }
-
-        /* Backend Workflow Monitoring Panel Drawer */
-        .backend-drawer { position: absolute; right: -400px; top: 0; width: 400px; height: 100%; background: #0b1329; border-left: 2px solid var(--border-glow); z-index: 100; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 25px; gap: 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
-        .backend-drawer.open { right: 0; }
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glow); padding-bottom: 15px; }
-        .close-drawer { background: transparent; border: none; color: var(--text-muted); cursor: pointer; }
-        .flow-timeline { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
-        .flow-step { display: flex; gap: 15px; position: relative; opacity: 0.5; transition: all 0.3s ease; }
-        .flow-step.active { opacity: 1; }
-        .flow-step:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 24px; bottom: -15px; width: 2px; background: var(--border-glow); }
+      html {
+        background: #020617;
+        color-scheme: dark;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx?t=1791976219961"></script>
+  </body>
+</html>
